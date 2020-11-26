@@ -1,9 +1,17 @@
 # Trendsetter Detection in the Iowa Liquor Market
+
 The Data Incubator  
 2020 Fall  
 Capstone Project
 
 # 1 Business Objective
+
+|                       | filename           | filesize | number of rows |
+|:----------------------|-------------------:|---------:|---------------:|
+| Raw data              |            raw.csv |     4.5G |       19 884 006 |
+| Cleaned data          |       data.parquet |     848M |       19 883 991 |
+| (nonanomalous)        |                    |          |       (18 409 105) |
+| Downsampled data (5%) | downsample.parquet |      47M |         993 222 |
 
 # 2 Data Ingestion
 
@@ -43,12 +51,6 @@ Capstone Project
 | Longitude     | float32 | 17976922 |      1907069 |    -91 |     3 |  -105 |     -97 |      -90 |      -74 |
 | Latitude      | float32 | 17976922 |      1907069 |     42 |     1 |    39 |      40 |       43 |       45 |
 | Random | float64 | 19883991 |            0 |    0.5 |   0.3 |   0 |     0 |      1 |   1 |
-
-
-
-
-
-
 
 # 3 Visualization
 

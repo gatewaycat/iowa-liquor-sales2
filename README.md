@@ -12,9 +12,7 @@ and 2415 buyers (liquor stores) [See Note 1].
 Wholesale transactions 
 are reported to the Iowa Alcoholic Beverages Division,
 who make the data (from 2012 to present) available at:
-https://data.iowa.gov/Sales-Distribution/Iowa-Liquor-Sales/m3tr-qhgy  
-https://data.iowa.gov/api/views/m3tr-qhgy/rows.csv?accessType=DOWNLOAD
-
+https://data.iowa.gov/Sales-Distribution/Iowa-Liquor-Sales/m3tr-qhgy
 The dataset consists of about 19 million transactions
 from 2012 through the present, and is about 4.5 GB [See Table 2 below].
 
@@ -57,8 +55,19 @@ who must buy through an off-premise retailer (ie, a liquor store).
 
 # 2 Data Ingestion
 
+_See [2-data-ingestion.ipynb](2-data-ingestion.ipynb)_
+
 The dataset after cleaning and formatting (but before feature engineering)
-has 25 columns, including the following.
+has 25 columns. See Table 1 for summary stats for 12 columns.
+
+After cleaning, we add the new feature `Category`, which is a grouping of the subcategories in the original dataset into 9 major categories.
+We also use detect errors in the data by investigating outliers (such as locations not in Iowa) 
+and by comparing redundant features (such as checking `Bottle_cost` times `Bottle_count` equals `Cents`).
+
+Finally we generate a random column and use it to take a 5% sample to assist in later analysis.
+
+
+#### Table 1
 
 |      | dtype          |    count |   null count |   unique | top                 |   freq | first               | last                |
 |:-----|:---------------|---------:|-------------:|---------:|:--------------------|-------:|:--------------------|:--------------------|

@@ -8,15 +8,15 @@ Capstone Project
 
 Wholesale liquor is a 300 million dollar a year market [See Table 1]
 with 452 sellers (brands/manufacturers)
-and 2415 buyers (liquor stores) [See Note 1].
+and 2415 buyers (liquor stores) [See Note 2].
 Wholesale transactions 
 are reported to the Iowa Alcoholic Beverages Division,
 who make the data (from 2012 to present) available at:
 https://data.iowa.gov/Sales-Distribution/Iowa-Liquor-Sales/m3tr-qhgy
 The dataset consists of about 19 million transactions
-from 2012 through the present, and is about 4.5 GB [See Table 2 below].
+from 2012 through the present, and is about 4.5 GB [See Table 3 below].
 
-Each liquor store typically carries around 35 brands (see table below),
+Each liquor store typically carries around 35 brands (see Table 4 below),
 and each brand employs salespersons that work the a number of liquor stores.
 For context, in the Manhattan liquor market, a salesperson
 might have a territory of 50 liquor stores.
@@ -29,11 +29,6 @@ Market segmentation will benefit wholesalers (the intended user) by allowing the
 - identify potential buyers (liquor stores)
 - more effectively partition sales regions for salespersons
 
-#### Note 1
-Note that the Iowa wholesale market excludes
-on-premise retailers (ie, restaurants and bars),
-who must buy through an off-premise retailer (ie, a liquor store).
-
 #### Table 1
 
 |                    |   Brandy |   Cocktail |   Gin |   Liqueur |   Neutral |   Rum |   Tequila |   Vodka |   Whiskey |    All |
@@ -42,7 +37,13 @@ who must buy through an off-premise retailer (ie, a liquor store).
 | Liters (Millions)  |     0.60 |       0.60 |  0.49 |      2.65 |      0.04 |  2.34 |      0.85 |    6.28 |      5.19 |  19.05 |
 | Gallons (Millions) |     0.16 |       0.16 |  0.13 |      0.70 |      0.01 |  0.62 |      0.22 |    1.66 |      1.37 |   5.02 |
 
-#### Table 2
+#### Note 2
+
+Note that the Iowa wholesale market excludes
+on-premise retailers (ie, restaurants and bars),
+who must buy through an off-premise retailer (ie, a liquor store).
+
+#### Table 3
 
 |                       | filename           | filesize | number of rows |
 |:----------------------|-------------------:|---------:|---------------:|
@@ -51,6 +52,7 @@ who must buy through an off-premise retailer (ie, a liquor store).
 | _nonanomalous rows only_|                  |          |     _18 409 105_ |
 | Downsampled data (5%) | downsample.parquet |      47M |         993 222 |
 
+#### Table 4
 
 
 # 2 Data Ingestion
@@ -58,16 +60,16 @@ who must buy through an off-premise retailer (ie, a liquor store).
 _See [2-data-ingestion.ipynb](2-data-ingestion.ipynb)_
 
 The dataset after cleaning and formatting (but before feature engineering)
-has 25 columns. See Table 1 for summary stats for 12 columns.
+has 25 columns. See Table 1 for summary stats for 12 columns. By cleaning the data we are able to reduce the filesize from 4.5 GB to 848 MB. [See Table 2 above.]
 
-After cleaning, we add the new feature `Category`, which is a grouping of the subcategories in the original dataset into 9 major categories.
+After cleaning, we add the new feature `Category`, which groups of the subcategories in the original dataset into 9 major categories.
 We also use detect errors in the data by investigating outliers (such as locations not in Iowa) 
 and by comparing redundant features (such as checking `Bottle_cost` times `Bottle_count` equals `Cents`).
 
 Finally we generate a random column and use it to take a 5% sample to assist in later analysis.
 
 
-#### Table 1
+#### Table 5
 
 |      | dtype          |    count |   null count |   unique | top                 |   freq | first               | last                |
 |:-----|:---------------|---------:|-------------:|---------:|:--------------------|-------:|:--------------------|:--------------------|
@@ -88,6 +90,47 @@ Finally we generate a random column and use it to take a 5% sample to assist in 
 | Latitude      | float32 | 17976922 |      1907069 |     42 |     1 |    39 |      40 |       43 |       45 |
 
 # 3 Visualization
+### Choropleth
+
+_See [3-choropleth.ipynb](3-choropleth.ipynb)_
+
+The Iowa liquor market is not homogeneous.
+For example, consider the ratio of sales of vodka to sales of whiskey.
+Regions around Des Moines, Davenport, Cedar Rapids, and Iowa City 
+purchase more vodka then whiskey, perhaps due to restaurant density.
+The rest of Iowa purchases more whiskey than vodka.
+
+![Choropleth of Vodka Sales to Whiskey Sales Ratio](3-choropleth.png)
+
+### Time Series
+
+_See [3-choropleth.ipynb](3-time-series.ipynb)_
+
+The market has been growing since 2012.
+However, growth is mostly driven by vodka and whiskey
+
+![Sales by category since 2012](3-time-series-1.png)
+
+Looking at sales of all categories and overlaying years 2012-2020, we see
+that this secular growth trend in the market is not contained to any particular time of year.
+
+![Sales by category since 2012](3-time-series-2.png)
+
+Averaging over all years, liquor purchases are highest in October, November, December.
+However, this cyclical increase is entirely driven by whiskey in Iowa.
+In the NYC liquor market, sales of both whiskey and vodka go up in the 4th quarter,
+as restaurants serve more vodka-based mixed-drinks.
+In future analysis, cyclical changes in vodka purchases (aggregated by liquor store) may allow us to identify which liquor stores sell extensively to restaurants, and which liquor stores mostly sell directly to consumers.
+
+![Sales by category since 2012](3-time-series-3.png)
+
+We can also aggregate by Item. Since the same product may be sold over different names, we need to group the items by keyword into product lines. TF-IDF can be used to find keywords that are rare overall, but common for a single brand, however the keywords generated were not as good a brand-exclusivity search. See 3-time-series.ipynb. In future analyses, TF-IDF cosine similarity may allow us to cluster items into product lines directly.
+
+We see that sales have not improved for every product line.
+For example, compare Tito's Vodka and Ciroc.
+
+![Sales by category since 2012](3-time-series-titos.png)
+![Sales by category since 2012](3-time-series-ciroc.png)
 
 # 4 Machine Learning
 

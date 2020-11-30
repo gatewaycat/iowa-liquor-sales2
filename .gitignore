@@ -1,6 +1,7 @@
 # Test files and system files
 archive
 .DS_Store
+raw.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

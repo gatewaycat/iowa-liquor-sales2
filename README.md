@@ -1,4 +1,4 @@
-# Trendsetter Detection in the Iowa Liquor Market
+# Iowa Wholesale Liquor Market Segementation
 
 The Data Incubator  
 2020 Fall  

@@ -6,9 +6,17 @@ Capstone Project
 
 # 1 Business Objective
 
-Wholesale liquor is a 300 million dollar a year market [See Table 1]
+This product uses machine learning
+(feature engineering and density-based clustering)
+to partition the Iowa liquor market into discrete components.
+Market segmentation will benefit wholesalers (the intended user) by allowing them to:
+- target advertising by region
+- identify potential buyers (liquor stores)
+- more effectively partition sales regions for salespersons
+
+In Iowa, wholesale liquor is a 300 million dollar a year market (see Table 1)
 with 452 sellers (brands/manufacturers)
-and 2415 buyers (liquor stores) [See Note 2].
+and 2415 buyers (liquor stores) (see Note 2).
 Wholesale transactions 
 are reported to the Iowa Alcoholic Beverages Division,
 who make the data (from 2012 to present) available at:
@@ -21,13 +29,6 @@ and each brand employs salespersons that work the a number of liquor stores.
 For context, in the Manhattan liquor market, a salesperson
 might have a territory of 50 liquor stores.
 
-This product uses machine learning
-(feature engineering and density-based clustering)
-to partition the iowa liquor market into discrete components.
-Market segmentation will benefit wholesalers (the intended user) by allowing them to:
-- target advertising by region
-- identify potential buyers (liquor stores)
-- more effectively partition sales regions for salespersons
 
 #### Table 1
 
@@ -60,7 +61,8 @@ who must buy through an off-premise retailer (ie, a liquor store).
 _See [2-data-ingestion.ipynb](2-data-ingestion.ipynb)_
 
 The dataset after cleaning and formatting (but before feature engineering)
-has 25 columns. See Table 1 for summary stats for 12 columns. By cleaning the data we are able to reduce the filesize from 4.5 GB to 848 MB. [See Table 2 above.]
+has 25 columns. See Table 5 for summary stats for 12 columns.
+By cleaning the data we are able to reduce the filesize from 4.5 GB to 848 MB. (See Table 3 above.)
 
 After cleaning, we add the new feature `Category`, which groups of the subcategories in the original dataset into 9 major categories.
 We also use detect errors in the data by investigating outliers (such as locations not in Iowa) 

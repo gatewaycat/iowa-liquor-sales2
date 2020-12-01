@@ -116,7 +116,7 @@ The rest of Iowa purchases more whiskey than vodka.
 _See [3-time-series.ipynb](3-time-series.ipynb)_
 
 The market has been growing since 2012.
-However, growth is mostly driven by vodka and whiskey
+However, growth is mostly driven by vodka and whiskey, and more recently, Liqueur.
 
 ![Sales by category since 2012](3-time-series-1.png)
 
@@ -141,11 +141,19 @@ For example, compare Tito's Vodka and Ciroc.
 ![Sales by category since 2012](3-time-series-titos.png)
 ![Sales by category since 2012](3-time-series-ciroc.png)
 
+Note that Ciroc is a rapper-sponsored liqueur,
+and it is common knowledge in liquor sales that liqueurs
+tend to be more prone to fads.
+
 # 4 Machine Learning
 
 ## Feature Engineering
 
 _See [4-feature-engineering.ipynb](4-feature-engineering.ipynb)_
+
+The original dataset, after cleaning, is a ledger of some 19 million transactions.
+
+Here are the first 3 rows.
 
 |    |      Invoice | Date                |   Store_num | Store                         | Address            | City       |   Zip |   County_num | County   |   Subcategory_num | Subcategory             |   Vendor_num | Vendor          |   Item_num | Item                               |   Bottle_pack |   Bottle_mL |   Bottle_cost |   Bottle_retail |   Bottle_count |   Cents |    mL |   Gallons |   Longitude |   Latitude | Category   | Anomalous   |   Random |
 |---:|-------------:|:--------------------|------------:|:------------------------------|:-------------------|:-----------|------:|-------------:|:---------|------------------:|:------------------------|-------------:|:----------------|-----------:|:-----------------------------------|--------------:|------------:|--------------:|----------------:|---------------:|--------:|------:|----------:|------------:|-----------:|:-----------|:------------|---------:|
@@ -153,13 +161,41 @@ _See [4-feature-engineering.ipynb](4-feature-engineering.ipynb)_
 |  1 | 126855200028 | 2020-04-27 00:00:00 |        5339 | Prime Star                    | 395 Western Avenue | Marengo    | 52301 |           48 | Iowa     |           1901200 | Special Order Items     |          330 | Gemini Spirits  |     988037 | Sooh Margaritaville Silver Tequila |            12 |        1000 |           784 |            1176 |              2 |    2352 |  2000 |      0.52 |    -92.0744 |    41.793  |            | False       | 0.316376 |
 |  2 | 126788200025 | 2020-04-24 00:00:00 |        4092 | Fareway Stores #077 / Norwalk | 1711 Sunset Dr     | Norwalk    | 50211 |           91 | Warren   |           1031200 | American Flavored Vodka |          260 | Diageo Americas |      77994 | Smirnoff Red, White & Berry        |             6 |        1750 |          1475 |            2213 |             30 |   66390 | 52500 |     13.86 |    -93.6755 |    41.4833 | Vodka      | False       | 0.183919 |
 
-|   Store_num |   %Vodka |   %Whiskey |   %Neutral |   #Category |   #Invoice |    #Item |   #Vendor |          Cents |   Latitude |   Longitude |   $/gal_Tequila |   $/gal_All |
-|------------:|---------:|-----------:|-----------:|------------:|-----------:|---------:|----------:|---------------:|-----------:|------------:|----------------:|------------:|
-|        2106 |   0.2214 |     0.2536 |     0.0002 |      9 |  4223 | 545 |   53 | 117688095 |    42.5172 |    -92.4558 |         67.1992 |     58.8894 |
-|        2113 |   0.2341 |     0.3303 |     0.0007 |      9 |  1542 | 228 |   31 |   7603493 |    42.2806 |    -94.2895 |        105.6055 |     53.2215 |
-|        2130 |   0.1850 |     0.2782 |     0.0013 |      9 |  3635 | 463 |   42 | 115448485 |    42.4979 |    -92.3354 |         79.0166 |     64.8906 |
+Before running cluster analysis on liquor store, we need to engineer a few features.
+To head of survivorship bias, we first filter to 2019 by writing `df[df.Date.dt.year==2019]`.
+Next we pivot the dataset by `Store_num`, meaning that the index will be `Store_num`
+Then we engineer the following features.
+- We aggregate by `sum` over `Cents` (sales) to get **Totals sales**.
+- We aggregate by `nunique` over `Vendor_num`, `Category`, `Item_num`, and `Invoice`
+  to get the number of **unique brands**, **unique categories** (out of 9), **unique items**,
+  as well as the **total number of transactions**.
+- We separately engineer the average price in dollars/gallon,
+  still indexed by `Store_num` but now additionally columned by `Category`.
+  In fact, we do this pivot and aggregate `Gallons` by `sum`,
+  and then repeat with `Cents` (sales) to get (#1).
+  We divide the two resulting dataframes to get **dollars/gallon**
+  for each store, grouped by `Category` (there are 9).
+- Finally, we separately engineer the **sales (USD) proportion by category**
+  by taking the previously defined dataframe (#1)
+  and the dividing by its last column (`All`).
+  Originally we also computed **sales (gal)proportion by category**,
+  but dropped the feature as it is already
+  adequately described by combine interaction of "sales (USD) proportion by category"
+  and "dollars/gallon"
 
+#### Feature selection
 
+Finally I chose the following 12 features to run clustering on
+based on which ones had the largest standard deviation.
+
+Here are the first 3 columns of the result.
+
+![4-feature-engineering-pivot1.png](4-feature-engineering-pivot1.png)
+![4-feature-engineering-pivot2.png](4-feature-engineering-pivot2.png)
+
+To better understand these new features, here are selected histograms.
+Observe that total sales is approximately exponentially distributed,
+whereas the others are approximately normal (with right-skew).
 
 ![Distribution of Stores by Total Sales](4-feature-engineering-sales.png)
 ![Distribution of Stores by Vodka:Whiskey Ratio](4-feature-engineering-vodka-ratio.png)

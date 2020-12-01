@@ -64,6 +64,13 @@ The dataset after cleaning and formatting (but before feature engineering)
 has 25 columns. See Table 5 for summary stats for 12 columns.
 By cleaning the data we are able to reduce the filesize from 4.5 GB to 848 MB. (See Table 3 above.)
 
+After removing some anomolies, the `Invoice` column becomes a uniquely identifying column,
+so we _could_ write `df = df.set_index('Invoice')`.
+However, we keep the index as is
+in case users run these notebooks in future months
+without manually cleaning any new anomolies
+the have appeared in the Iowa Alcoholic Beverages Division dataset.
+
 After cleaning, we add the new feature `Category`, which groups of the subcategories in the original dataset into 9 major categories.
 We also use detect errors in the data by investigating outliers (such as locations not in Iowa) 
 and by comparing redundant features (such as checking `Bottle_cost` times `Bottle_count` equals `Cents`).
@@ -106,15 +113,15 @@ The rest of Iowa purchases more whiskey than vodka.
 
 ### Time Series
 
-_See [3-choropleth.ipynb](3-time-series.ipynb)_
+_See [3-time-series.ipynb](3-time-series.ipynb)_
 
 The market has been growing since 2012.
-However, growth is mostly driven by vodka and whiskey
+However, growth is mostly driven by vodka and whiskey, and more recently, Liqueur.
 
 ![Sales by category since 2012](3-time-series-1.png)
 
 Looking at sales of all categories and overlaying years 2012-2020, we see
-that this secular growth trend in the market is not contained to any particular time of year.
+that this secular growth trend in the market is not limited to any particular time of year.
 
 ![Sales by category since 2012](3-time-series-2.png)
 
@@ -134,11 +141,72 @@ For example, compare Tito's Vodka and Ciroc.
 ![Sales by category since 2012](3-time-series-titos.png)
 ![Sales by category since 2012](3-time-series-ciroc.png)
 
+Note that Ciroc is a rapper-sponsored liqueur,
+and it is common knowledge in liquor sales that liqueurs
+tend to be more prone to fads.
+
 # 4 Machine Learning
 
 ## Feature Engineering
 
+_See [4-feature-engineering.ipynb](4-feature-engineering.ipynb)_
+
+The original dataset, after cleaning, is a ledger of some 19 million transactions.
+
+Here are the first 3 rows.
+
+|    |      Invoice | Date                |   Store_num | Store                         | Address            | City       |   Zip |   County_num | County   |   Subcategory_num | Subcategory             |   Vendor_num | Vendor          |   Item_num | Item                               |   Bottle_pack |   Bottle_mL |   Bottle_cost |   Bottle_retail |   Bottle_count |   Cents |    mL |   Gallons |   Longitude |   Latitude | Category   | Anomalous   |   Random |
+|---:|-------------:|:--------------------|------------:|:------------------------------|:-------------------|:-----------|------:|-------------:|:---------|------------------:|:------------------------|-------------:|:----------------|-----------:|:-----------------------------------|--------------:|------------:|--------------:|----------------:|---------------:|--------:|------:|----------:|------------:|-----------:|:-----------|:------------|---------:|
+|  0 | 126831400106 | 2020-04-27 00:00:00 |        2190 | Central City Liquor, Inc.     | 1460 2Nd Ave       | Des Moines | 50314 |           77 | Polk     |           1012100 | Canadian Whiskies       |          260 | Diageo Americas |      10804 | Crown Royal Regal Apple            |            44 |         200 |           472 |             708 |              6 |    4248 |  1200 |      0.31 |    -93.6198 |    41.6057 | Whiskey    | False       | 0.929616 |
+|  1 | 126855200028 | 2020-04-27 00:00:00 |        5339 | Prime Star                    | 395 Western Avenue | Marengo    | 52301 |           48 | Iowa     |           1901200 | Special Order Items     |          330 | Gemini Spirits  |     988037 | Sooh Margaritaville Silver Tequila |            12 |        1000 |           784 |            1176 |              2 |    2352 |  2000 |      0.52 |    -92.0744 |    41.793  |            | False       | 0.316376 |
+|  2 | 126788200025 | 2020-04-24 00:00:00 |        4092 | Fareway Stores #077 / Norwalk | 1711 Sunset Dr     | Norwalk    | 50211 |           91 | Warren   |           1031200 | American Flavored Vodka |          260 | Diageo Americas |      77994 | Smirnoff Red, White & Berry        |             6 |        1750 |          1475 |            2213 |             30 |   66390 | 52500 |     13.86 |    -93.6755 |    41.4833 | Vodka      | False       | 0.183919 |
+
+Before running cluster analysis on liquor store, we need to engineer a few features.
+To head of survivorship bias, we first filter to 2019 by writing `df[df.Date.dt.year==2019]`.
+Next we pivot the dataset by `Store_num`, meaning that the index will be `Store_num`
+Then we engineer the following features.
+- We aggregate by `sum` over `Cents` (sales) to get **Totals sales**.
+- We aggregate by `nunique` over `Vendor_num`, `Category`, `Item_num`, and `Invoice`
+  to get the number of **unique brands**, **unique categories** (out of 9), **unique items**,
+  as well as the **total number of transactions**.
+- We separately engineer the average price in dollars/gallon,
+  still indexed by `Store_num` but now additionally columned by `Category`.
+  In fact, we do this pivot and aggregate `Gallons` by `sum`,
+  and then repeat with `Cents` (sales) to get (#1).
+  We divide the two resulting dataframes to get **dollars/gallon**
+  for each store, grouped by `Category` (there are 9).
+- Finally, we separately engineer the **sales (USD) proportion by category**
+  by taking the previously defined dataframe (#1)
+  and the dividing by its last column (`All`).
+  Originally we also computed **sales (gal)proportion by category**,
+  but dropped the feature as it is already
+  adequately described by combine interaction of "sales (USD) proportion by category"
+  and "dollars/gallon"
+
+#### Feature selection
+
+Finally I chose the following 12 features to run clustering on
+based on which ones had the largest standard deviation.
+
+Here are the first 3 columns of the result.
+
+![4-feature-engineering-pivot1.png](4-feature-engineering-pivot1.png)
+![4-feature-engineering-pivot2.png](4-feature-engineering-pivot2.png)
+
+To better understand these new features, here are selected histograms.
+Observe that total sales is approximately exponentially distributed,
+whereas the others are approximately normal (with right-skew).
+
+![Distribution of Stores by Total Sales](4-feature-engineering-sales.png)
+![Distribution of Stores by Vodka:Whiskey Ratio](4-feature-engineering-vodka-ratio.png)
+![Distribution of Stores by Number of Vendors](4-feature-engineering-nvendors.png)
+![Distribution of Stores by Average Price USD/gal (Total USD/Total_gal)](4-feature-engineering-price.png)
+
 ## Clustering
+
+_See [4-clustering.ipynb](4-clustering.ipynb)_
+
+![4-clustering.png](4-clustering.png)
 
 # 5 Deliverable
 The current [README](README.md)

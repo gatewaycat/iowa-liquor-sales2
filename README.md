@@ -208,5 +208,17 @@ _See [4-clustering.ipynb](4-clustering.ipynb)_
 
 ![4-clustering.png](4-clustering.png)
 
+![4-clustering.png](4-clustering-234.png)
+
+#### Interpretation
+
+_See tables at bottom of [4-clustering.ipynb](4-clustering.ipynb)_
+
+- Cluster 0: portfolio of 30 vendors, 180k sales, carries 250 products, carries cheap tequila
+- Clusters 1-4: portfolio of 20 vendors, 50k sales, carries 100 products, carries expensive tequila and no/few neutral grain spirits
+  - Cluster 4 stores all carry exactly 0 neutral grain spirits, and sell more Vodka than Whiskey
+
+This density-based clustering algorithm has difficulty classifying large liquor stores (average sales 350k, 35 brands) with expensive tequila. These may be due to larger warehouse-type stores being located in (relatively) geographically isolated lots with parking.
+
 # 5 Deliverable
 The current [README](README.md)

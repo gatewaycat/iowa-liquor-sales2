@@ -55,6 +55,12 @@ who must buy through an off-premise retailer (ie, a liquor store).
 
 #### Table 4
 
+_See [4-feature-engineering.ipynb](4-feature-engineering.ipynb)_
+
+|      | %Vodka | %Whiskey | %Neutral | #Cat | #Invoice | #Item | #Vendor_num | Total$ | Latitude | Longitude | $/gal_tequila | $/gal_all |
+|:-----|-----:|-----:|-------:|--:|------------:|-----------:|---------:|-------:|-------:|-------:|----------:|-----------:|
+| mean | 0.26 | 0.33 | 0.0019 | 8 | 1230 | 232 | 28 | 187595 | 41.9753 | -93.0522 | 109 | 58 |
+
 
 # 2 Data Ingestion
 

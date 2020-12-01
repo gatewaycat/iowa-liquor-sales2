@@ -64,6 +64,13 @@ The dataset after cleaning and formatting (but before feature engineering)
 has 25 columns. See Table 5 for summary stats for 12 columns.
 By cleaning the data we are able to reduce the filesize from 4.5 GB to 848 MB. (See Table 3 above.)
 
+After removing some anomolies, the `Invoice` column becomes a uniquely identifying column,
+so we _could_ write `df = df.set_index('Invoice')`.
+However, we keep the index as is
+in case users run these notebooks in future months
+without manually cleaning any new anomolies
+the have appeared in the Iowa Alcoholic Beverages Division dataset.
+
 After cleaning, we add the new feature `Category`, which groups of the subcategories in the original dataset into 9 major categories.
 We also use detect errors in the data by investigating outliers (such as locations not in Iowa) 
 and by comparing redundant features (such as checking `Bottle_cost` times `Bottle_count` equals `Cents`).
@@ -106,7 +113,7 @@ The rest of Iowa purchases more whiskey than vodka.
 
 ### Time Series
 
-_See [3-choropleth.ipynb](3-time-series.ipynb)_
+_See [3-time-series.ipynb](3-time-series.ipynb)_
 
 The market has been growing since 2012.
 However, growth is mostly driven by vodka and whiskey
@@ -114,7 +121,7 @@ However, growth is mostly driven by vodka and whiskey
 ![Sales by category since 2012](3-time-series-1.png)
 
 Looking at sales of all categories and overlaying years 2012-2020, we see
-that this secular growth trend in the market is not contained to any particular time of year.
+that this secular growth trend in the market is not limited to any particular time of year.
 
 ![Sales by category since 2012](3-time-series-2.png)
 
@@ -138,7 +145,32 @@ For example, compare Tito's Vodka and Ciroc.
 
 ## Feature Engineering
 
+_See [4-feature-engineering.ipynb](4-feature-engineering.ipynb)_
+
+|    |      Invoice | Date                |   Store_num | Store                         | Address            | City       |   Zip |   County_num | County   |   Subcategory_num | Subcategory             |   Vendor_num | Vendor          |   Item_num | Item                               |   Bottle_pack |   Bottle_mL |   Bottle_cost |   Bottle_retail |   Bottle_count |   Cents |    mL |   Gallons |   Longitude |   Latitude | Category   | Anomalous   |   Random |
+|---:|-------------:|:--------------------|------------:|:------------------------------|:-------------------|:-----------|------:|-------------:|:---------|------------------:|:------------------------|-------------:|:----------------|-----------:|:-----------------------------------|--------------:|------------:|--------------:|----------------:|---------------:|--------:|------:|----------:|------------:|-----------:|:-----------|:------------|---------:|
+|  0 | 126831400106 | 2020-04-27 00:00:00 |        2190 | Central City Liquor, Inc.     | 1460 2Nd Ave       | Des Moines | 50314 |           77 | Polk     |           1012100 | Canadian Whiskies       |          260 | Diageo Americas |      10804 | Crown Royal Regal Apple            |            44 |         200 |           472 |             708 |              6 |    4248 |  1200 |      0.31 |    -93.6198 |    41.6057 | Whiskey    | False       | 0.929616 |
+|  1 | 126855200028 | 2020-04-27 00:00:00 |        5339 | Prime Star                    | 395 Western Avenue | Marengo    | 52301 |           48 | Iowa     |           1901200 | Special Order Items     |          330 | Gemini Spirits  |     988037 | Sooh Margaritaville Silver Tequila |            12 |        1000 |           784 |            1176 |              2 |    2352 |  2000 |      0.52 |    -92.0744 |    41.793  |            | False       | 0.316376 |
+|  2 | 126788200025 | 2020-04-24 00:00:00 |        4092 | Fareway Stores #077 / Norwalk | 1711 Sunset Dr     | Norwalk    | 50211 |           91 | Warren   |           1031200 | American Flavored Vodka |          260 | Diageo Americas |      77994 | Smirnoff Red, White & Berry        |             6 |        1750 |          1475 |            2213 |             30 |   66390 | 52500 |     13.86 |    -93.6755 |    41.4833 | Vodka      | False       | 0.183919 |
+
+|   Store_num |   %Vodka |   %Whiskey |   %Neutral |   #Category |   #Invoice |    #Item |   #Vendor |          Cents |   Latitude |   Longitude |   $/gal_Tequila |   $/gal_All |
+|------------:|---------:|-----------:|-----------:|------------:|-----------:|---------:|----------:|---------------:|-----------:|------------:|----------------:|------------:|
+|        2106 |   0.2214 |     0.2536 |     0.0002 |      9 |  4223 | 545 |   53 | 117688095 |    42.5172 |    -92.4558 |         67.1992 |     58.8894 |
+|        2113 |   0.2341 |     0.3303 |     0.0007 |      9 |  1542 | 228 |   31 |   7603493 |    42.2806 |    -94.2895 |        105.6055 |     53.2215 |
+|        2130 |   0.1850 |     0.2782 |     0.0013 |      9 |  3635 | 463 |   42 | 115448485 |    42.4979 |    -92.3354 |         79.0166 |     64.8906 |
+
+
+
+![Distribution of Stores by Total Sales](4-feature-engineering-sales.png)
+![Distribution of Stores by Vodka:Whiskey Ratio](4-feature-engineering-vodka-ratio.png)
+![Distribution of Stores by Number of Vendors](4-feature-engineering-nvendors.png)
+![Distribution of Stores by Average Price USD/gal (Total USD/Total_gal)](4-feature-engineering-price.png)
+
 ## Clustering
+
+_See [4-clustering.ipynb](4-clustering.ipynb)_
+
+![4-clustering.png](4-clustering.png)
 
 # 5 Deliverable
 The current [README](README.md)

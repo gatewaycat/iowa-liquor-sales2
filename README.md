@@ -206,6 +206,8 @@ whereas the others are approximately normal (with right-skew).
 
 _See [4-clustering.ipynb](4-clustering.ipynb)_
 
+Using a density-based clustering algorithm on the features selected above produces 5 clusters, two that conver the whole state, and three localized clusters.
+
 ![4-clustering.png](4-clustering.png)
 
 ![4-clustering.png](4-clustering-234.png)
@@ -214,9 +216,12 @@ _See [4-clustering.ipynb](4-clustering.ipynb)_
 
 _See tables at bottom of [4-clustering.ipynb](4-clustering.ipynb)_
 
-- Cluster 0: portfolio of 30 vendors, 180k sales, carries 250 products, carries cheap tequila
-- Clusters 1-4: portfolio of 20 vendors, 50k sales, carries 100 products, carries expensive tequila and no/few neutral grain spirits
-  - Cluster 4 stores all carry exactly 0 neutral grain spirits, and sell more Vodka than Whiskey
+- Cluster 0: everywhere in Iowa, portfolio of 30 vendors on average, 180k sales, carries 250 products, carries cheap tequila
+- Clusters 1-4: portfolio of 20 vendors, carries 100 products, carries expensive tequila and no/few neutral grain spirits
+  - Cluster 1 stores are everywhere in Iowa except the northwest, 50k in sales
+  - Cluster 2 stores carry less Vodka and less Whiskey than average, 60k in sales 
+  - Cluster 3 stores are in the northwest and carry less Vodka and more Whiskey than average, 50k in sales
+  - Cluster 4 stores are in the eastern collegiate region of Iowaand sells more Vodka than Whiskey, 25k in sales; all carry exactly 0 neutral grain spirits, 
 
 This density-based clustering algorithm has difficulty classifying large liquor stores (average sales 350k, 35 brands) with expensive tequila. These may be due to larger warehouse-type stores being located in (relatively) geographically isolated lots with parking.
 
